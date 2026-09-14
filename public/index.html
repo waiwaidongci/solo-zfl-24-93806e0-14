@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>赛鸽登记站 · 成绩申诉复核</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header>
+    <div>
+      <h1>赛鸽登记站 · 成绩申诉复核系统</h1>
+      <div class="muted">成绩公布 → 申诉 → 受理 / 补证 / 驳回 / 改判 → 排名重算，全程留痕可追溯</div>
+    </div>
+    <div id="userbar" class="hidden">
+      <span id="whoami"></span>
+      <button id="logout" class="ghost small">退出登录</button>
+    </div>
+  </header>
+
+  <div id="banner" class="banner hidden"></div>
+
+  <main id="view-login" class="narrow">
+    <form id="login-form" class="panel">
+      <h2>登录</h2>
+      <label>用户名</label>
+      <input name="username" required autocomplete="username">
+      <label>密码</label>
+      <input name="password" type="password" required autocomplete="current-password">
+      <div class="actions" style="margin-top:12px"><button type="submit">登录</button></div>
+      <div class="muted small-text">
+        演示账号 —— 鸽主：<code>owner1</code> / <code>owner2</code>（密码 <code>owner123</code>）；
+        审理人：<code>reviewer</code>（密码 <code>review123</code>）
+      </div>
+    </form>
+  </main>
+
+  <main id="view-app" class="hidden">
+    <nav id="tabs"></nav>
+    <section id="tab-content"></section>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>
