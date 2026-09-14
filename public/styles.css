@@ -74,7 +74,7 @@ tr.frozen-row td { background: #fff8f0; }
 .pill.REJUDGED { background: #e8f5ec; color: var(--green); border-color: #bfe3cc; }
 .pill.frozen { background: #fff0e6; color: #b25a21; border-color: #f0cdb0; }
 
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr)); gap: 14px; }
 .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
 .card h3 { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .section { margin-bottom: 18px; }
@@ -93,6 +93,26 @@ tr.frozen-row td { background: #fff8f0; }
 
 @media (max-width: 900px) {
   header { display: block; padding: 14px 16px; }
+  #userbar { margin-top: 8px; }
   main { padding: 14px 16px; }
   .two-col { grid-template-columns: 1fr; }
+}
+
+/* 窄屏：数据表转为卡片式堆叠，整页不产生横向溢出，所有列逐行可读 */
+@media (max-width: 720px) {
+  main { padding: 12px; }
+  .banner { margin: 10px 12px 0; }
+  table.responsive { display: block; background: transparent; }
+  table.responsive thead { display: none; }
+  table.responsive tbody { display: block; }
+  table.responsive tr {
+    display: block; background: #fff; border: 1px solid var(--line);
+    border-radius: 8px; margin-bottom: 12px; overflow: hidden;
+  }
+  table.responsive td { display: block; border: 0; border-bottom: 1px solid var(--line); padding: 8px 12px; }
+  table.responsive td:last-child { border-bottom: 0; }
+  table.responsive td::before {
+    content: attr(data-label); display: block; font-size: 12px;
+    color: var(--muted); margin-bottom: 3px; font-weight: 400;
+  }
 }

@@ -2,6 +2,17 @@ import { createPigeon, createRace, createUser, addResult, publishRace } from "./
 import { addDays } from "./util.js";
 
 /**
+ * 幂等迁移：早期版本把角色写进了 display_name（如「张三（鸽主）」），
+ * 导致身份栏「名称（角色）」中角色重复。名称只保留姓名，角色由界面按 role 字段渲染。
+ */
+export function migrateDisplayNames(db) {
+  db.prepare(
+    `UPDATE users SET display_name = TRIM(REPLACE(REPLACE(display_name, '（鸽主）', ''), '（审理人）', ''))
+     WHERE display_name LIKE '%（鸽主）%' OR display_name LIKE '%（审理人）%'`
+  ).run();
+}
+
+/**
  * 首次启动时写入演示数据（users 表为空才执行）：
  *  - 鸽主 owner1/owner2（密码 owner123），审理人 reviewer（密码 review123）
  *  - 一场「申诉期内」的赛事 + 一场「申诉期已过」的赛事，方便走通全部流程
@@ -11,9 +22,9 @@ export function seedIfEmpty(db, now = new Date()) {
   if (count > 0) return false;
 
   const nowDate = new Date(now);
-  const owner1 = createUser(db, { username: "owner1", password: "owner123", displayName: "张三（鸽主）", role: "owner" }, nowDate);
-  const owner2 = createUser(db, { username: "owner2", password: "owner123", displayName: "李四（鸽主）", role: "owner" }, nowDate);
-  createUser(db, { username: "reviewer", password: "review123", displayName: "王五（审理人）", role: "reviewer" }, nowDate);
+  const owner1 = createUser(db, { username: "owner1", password: "owner123", displayName: "张三", role: "owner" }, nowDate);
+  const owner2 = createUser(db, { username: "owner2", password: "owner123", displayName: "李四", role: "owner" }, nowDate);
+  createUser(db, { username: "reviewer", password: "review123", displayName: "王五", role: "reviewer" }, nowDate);
 
   const p1 = createPigeon(db, { ringNo: "CHN-2026-001", color: "灰", loft: "北岸A棚", ownerId: owner1 }, nowDate);
   const p2 = createPigeon(db, { ringNo: "CHN-2026-002", color: "雨点", loft: "北岸A棚", ownerId: owner1 }, nowDate);

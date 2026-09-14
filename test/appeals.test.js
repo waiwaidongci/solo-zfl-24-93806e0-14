@@ -195,7 +195,7 @@ test("成绩申诉复核业务规则", async (t) => {
     const detail = await api(base, "GET", `/api/appeals/${appealId}`, { token: owner1 });
     const actions = detail.data.events.map((e) => `${e.from_status ?? "-"}->${e.to_status}:${e.action}`);
     assert.deepEqual(actions, ["-->PENDING:submit", "PENDING->ACCEPTED:accept", "ACCEPTED->REJUDGED:rejudge"]);
-    assert.equal(detail.data.appeal.decided_by_name, "王五（审理人）");
+    assert.equal(detail.data.appeal.decided_by_name, "王五");
   });
 
   await t.test("补证流程：要求补证 → 期限内补证 → 驳回", async () => {

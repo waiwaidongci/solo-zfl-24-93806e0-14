@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import { dirname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
 import { openDb } from "./db.js";
-import { seedIfEmpty } from "./seed.js";
+import { seedIfEmpty, migrateDisplayNames } from "./seed.js";
 import { ApiError, badRequest, forbidden, unauthorized } from "./errors.js";
 import { createSession, getSessionUser, verifyPassword } from "./auth.js";
 import * as svc from "./services.js";
@@ -64,7 +64,9 @@ route("POST", "/api/logout", { auth: true }, async ({ db, req }) => {
   return { ok: true };
 });
 
-route("GET", "/api/me", { auth: true }, async ({ user }) => ({ user }));
+route("GET", "/api/me", { auth: true }, async ({ user }) => ({
+  user: { id: user.id, username: user.username, displayName: user.display_name, role: user.role },
+}));
 
 // ---------------- 鸽只与转让 ----------------
 route("GET", "/api/pigeons", { auth: true }, async ({ db, user }) => ({ pigeons: svc.listPigeons(db, user) }));
@@ -153,6 +155,7 @@ route("POST", "/api/appeals/:id/rejudge", { roles: ["reviewer"] }, async ({ db, 
 export function createApp({ dbPath }) {
   const db = openDb(dbPath);
   seedIfEmpty(db);
+  migrateDisplayNames(db);
 
   const server = http.createServer(async (req, res) => {
     try {

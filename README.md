@@ -8,9 +8,18 @@
 ```bash
 npm install   # 若 better-sqlite3 编译失败，使用 CC=/usr/bin/gcc CXX=/usr/bin/g++ npm install
 npm start     # http://localhost:3024 ，数据库文件 data/app.db（重启不丢数据）
-npm test      # 31 项测试：业务规则 / 并发 / 事务回滚 / 重启持久化
-bash scripts/walkthrough.sh   # 31 项端到端走查（需服务已启动）
+npm test      # 40 项测试：业务规则 / 并发 / 事务回滚 / 重启持久化 / 身份文本 / 窄屏响应式
+npm run test:browser  # 真实浏览器走查（Playwright，桌面 1280px + 窄屏 375px 全流程）
+bash scripts/walkthrough.sh   # 31 项端到端 API 走查（需服务已启动）
 ```
+
+> 本环境运行浏览器走查需先加载用户态图形库：
+> `LD_LIBRARY_PATH=/tmp/libs/usr/lib/aarch64-linux-gnu:/tmp/libs/lib/aarch64-linux-gnu npm run test:browser`
+
+## 界面适配
+
+- **窄屏（≤720px）**：所有数据表转为卡片式堆叠，每行字段带列名标注，整页无横向溢出；桌面布局保持不变。
+- **身份栏**：显示「姓名（角色）」，名称与角色各出现一次；旧库中带角色后缀的姓名会在启动时自动迁移。
 
 演示账号：鸽主 `owner1` / `owner2`（密码 `owner123`），审理人 `reviewer`（密码 `review123`）。
 种子数据含一场申诉期内的赛事和一场已过申诉期的赛事。
@@ -35,7 +44,8 @@ src/services.js      领域服务：状态机、事务、排名重算、冻结
 src/app.js           HTTP 路由与鉴权
 src/seed.js          演示数据
 public/              前端单页（鸽主 / 审理人 / 成绩榜）
-test/                node:test 测试（31 项）
-scripts/walkthrough.sh  端到端走查脚本
-scripts/restart.sh      重启脚本（--fresh 重置数据）
+test/                node:test 测试（40 项）
+scripts/walkthrough.sh          端到端 API 走查脚本
+scripts/browser-walkthrough.mjs 真实浏览器走查（双宽度）
+scripts/restart.sh              重启脚本（--fresh 重置数据）
 ```

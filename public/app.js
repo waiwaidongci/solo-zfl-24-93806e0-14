@@ -156,7 +156,7 @@ async function renderMyResults(content) {
       <h2>我的成绩</h2>
       <p class="muted">申诉期内的已公布成绩可提交申诉；每条成绩只能申诉一次。申诉被受理后，该鸽将冻结转让与成绩修改。</p>
       ${results.length === 0 ? "<p class='muted'>暂无成绩记录。</p>" : ""}
-      ${results.length ? `<table><thead><tr>
+      ${results.length ? `<table class="responsive"><thead><tr>
         <th>赛事</th><th>足环号</th><th>分速</th><th>当前名次</th><th>原始名次</th><th>申诉期</th><th>状态</th><th>操作</th>
       </tr></thead><tbody>
         ${results.map((r) => {
@@ -169,10 +169,10 @@ async function renderMyResults(content) {
               ? `<button class="small" data-new-appeal="${r.result_id}">提交申诉</button>`
               : `<span class="muted">${r.race_status === "published" ? "已过申诉期" : "未公布"}</span>`;
           return `<tr class="${r.frozen ? "frozen-row" : ""}">
-            <td>${esc(r.race_name)}</td><td>${esc(r.ring_no)} ${frozen}</td><td>${r.score}</td>
-            <td>${r.rank ?? "—"}</td><td>${r.original_rank ?? "—"}</td>
-            <td class="muted">${r.race_status === "published" ? `截止 ${fmtTime(r.appeal_deadline)}` : "未公布"}</td>
-            <td>${appeal}</td><td>${action}</td></tr>`;
+            <td data-label="赛事">${esc(r.race_name)}</td><td data-label="足环号">${esc(r.ring_no)} ${frozen}</td><td data-label="分速">${r.score}</td>
+            <td data-label="当前名次">${r.rank ?? "—"}</td><td data-label="原始名次">${r.original_rank ?? "—"}</td>
+            <td data-label="申诉期" class="muted">${r.race_status === "published" ? `截止 ${fmtTime(r.appeal_deadline)}` : "未公布"}</td>
+            <td data-label="状态">${appeal}</td><td data-label="操作">${action}</td></tr>`;
         }).join("")}
       </tbody></table>` : ""}
     </div>
@@ -559,7 +559,7 @@ async function renderStandings(content) {
     const { race, results, history } = await api(`/api/races/${select.value}/standings`);
     $("#standings-slot").innerHTML = `
       ${race.status === "published" ? `<p class="muted">公布于 ${fmtTime(race.published_at)} · 申诉截止 ${fmtTime(race.appeal_deadline)}</p>` : "<p class='muted'>赛事尚未公布成绩。</p>"}
-      <table><thead><tr><th>当前名次</th><th>原始名次</th><th>足环号</th><th>鸽主</th><th>分速</th><th>申诉</th>${me.role === "reviewer" && race.status === "published" ? "<th>调整分速</th>" : ""}</tr></thead>
+      <table class="responsive"><thead><tr><th>当前名次</th><th>原始名次</th><th>足环号</th><th>鸽主</th><th>分速</th><th>申诉</th>${me.role === "reviewer" && race.status === "published" ? "<th>调整分速</th>" : ""}</tr></thead>
       <tbody>
         ${results.map((r) => {
           const moved = r.original_rank !== null && r.rank !== r.original_rank;
@@ -567,13 +567,13 @@ async function renderStandings(content) {
             ? `<span class="rank-old">第${r.original_rank}名</span><span class="${r.rank < r.original_rank ? "diff-up" : "diff-down"}">第${r.rank}名</span>`
             : `第${r.rank ?? "—"}名`;
           return `<tr class="${r.frozen ? "frozen-row" : ""}">
-            <td>${rankCell}</td><td>${r.original_rank ?? "—"}</td>
-            <td>${esc(r.ring_no)} ${r.frozen ? '<span class="pill frozen">冻结</span>' : ""}</td>
-            <td>${esc(r.owner_name)}</td><td>${r.score}</td>
-            <td>${r.appeal_status ? pill(r.appeal_status) : "—"}</td>
-            ${me.role === "reviewer" && race.status === "published" ? `<td>
+            <td data-label="当前名次">${rankCell}</td><td data-label="原始名次">${r.original_rank ?? "—"}</td>
+            <td data-label="足环号">${esc(r.ring_no)} ${r.frozen ? '<span class="pill frozen">冻结</span>' : ""}</td>
+            <td data-label="鸽主">${esc(r.owner_name)}</td><td data-label="分速">${r.score}</td>
+            <td data-label="申诉">${r.appeal_status ? pill(r.appeal_status) : "—"}</td>
+            ${me.role === "reviewer" && race.status === "published" ? `<td data-label="调整分速">
               <form data-adjust="${r.result_id}" style="display:flex;gap:6px">
-                <input name="score" type="number" step="0.01" min="0" placeholder="新分速" style="width:110px">
+                <input name="score" type="number" step="0.01" min="0" placeholder="新分速" style="flex:1;min-width:80px">
                 <button class="small ghost" type="submit">调整</button>
               </form></td>` : ""}
           </tr>`;
@@ -581,14 +581,14 @@ async function renderStandings(content) {
       </tbody></table>
       <h3 style="margin-top:16px">名次调整记录</h3>
       ${history.length === 0 ? "<p class='muted'>暂无调整记录。</p>" : `
-        <table><thead><tr><th>时间</th><th>足环号</th><th>分速变化</th><th>名次变化</th><th>原因</th><th>关联申诉</th></tr></thead>
+        <table class="responsive"><thead><tr><th>时间</th><th>足环号</th><th>分速变化</th><th>名次变化</th><th>原因</th><th>关联申诉</th></tr></thead>
         <tbody>
           ${history.map((h) => `<tr>
-            <td class="muted">${fmtTime(h.created_at)}</td><td>${esc(h.ring_no)}</td>
-            <td>${h.old_score === null ? "—" : `${h.old_score} → ${h.new_score}`}</td>
-            <td>${h.old_rank === null ? `首次排名 第${h.new_rank}名` : `第${h.old_rank}名 → 第${h.new_rank}名`}</td>
-            <td>${REASON_LABELS[h.reason] || esc(h.reason)}</td>
-            <td>${h.appeal_id ? `#${h.appeal_id}` : "—"}</td>
+            <td data-label="时间" class="muted">${fmtTime(h.created_at)}</td><td data-label="足环号">${esc(h.ring_no)}</td>
+            <td data-label="分速变化">${h.old_score === null ? "—" : `${h.old_score} → ${h.new_score}`}</td>
+            <td data-label="名次变化">${h.old_rank === null ? `首次排名 第${h.new_rank}名` : `第${h.old_rank}名 → 第${h.new_rank}名`}</td>
+            <td data-label="原因">${REASON_LABELS[h.reason] || esc(h.reason)}</td>
+            <td data-label="关联申诉">${h.appeal_id ? `#${h.appeal_id}` : "—"}</td>
           </tr>`).join("")}
         </tbody></table>`}`;
 
